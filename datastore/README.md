@@ -1,4 +1,0 @@
-datastore
-=========
-
-The Datastore
