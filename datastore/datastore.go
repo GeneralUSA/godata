@@ -12,7 +12,7 @@ var db *sql.DB
 func getConnection() *sql.DB {
 	if db == nil {
 		var err error
-		c, err := conf.ReadConfigFile("database.config")
+		c, err := conf.ReadConfigFile("../database.config")
 		if err != nil {
 			panic(err)
 		}
