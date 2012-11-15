@@ -1,65 +1,70 @@
 package postgres
 
 import (
-	"fmt"
+	"github.com/YouthBuild-USA/ybdata/datastore"
 )
 
 type Subject struct {
 	// Data base fields
-	Id       int
-	Type     string
-	Name     string
-	SortName string
-	Data     *HStore
+	id          int
+	subjectType string
+	name        string
+	sortName    string
+	data        *HStore
 
 	// Other stuff
-	IsNew bool
+	isNew bool
 }
 
-var subjectStatements *SubjectStatements
+func (s Subject) Id() int {
+	return s.id
+}
 
-func init() {
-	db := getConnection()
-	subjectStatements = newSubjectStatements(db)
+func (s Subject) Name() string {
+	return s.name
+}
+func (s Subject) SetName(name string) {
+	s.name = name
+}
+func (s Subject) SortName() string {
+	return s.sortName
+}
+func (s Subject) SetSortName(sortName string) {
+	s.sortName = sortName
+}
+func (s Subject) SubjectType() string {
+	return s.subjectType
 }
 
 func newSubject() *Subject {
-	return &Subject{Data: NewHStore()}
+	return &Subject{data: NewHStore()}
 }
 
-func CreateSubject(typ string, name string, sortName string) *Subject {
+func (pg PostgresProvider) CreateSubject(subjectType, name, sortName string) datastore.Subject {
 	s := Subject{
-		Type:     typ,
-		Name:     name,
-		SortName: sortName,
-		IsNew:    true,
+		subjectType: subjectType,
+		name:        name,
+		sortName:    sortName,
+		isNew:       true,
 	}
-	s.Data = NewHStore()
-	return &s
+	s.data = NewHStore()
+	return (datastore.Subject)(&s)
 }
 
-func (subject Subject) String() string {
-	s := subject.Name
-	for _, k := range subject.Data.Keys() {
-		v, _ := subject.Data.Get(k)
-		s += fmt.Sprintf("\n  %v: %v", k, v)
-	}
-	return s
-}
-func LoadSubject(id int) (s *Subject, err error) {
-	s = newSubject()
+func (pg PostgresProvider) LoadSubject(id int) (datastore.Subject, error) {
+	s := newSubject()
 
-	row := subjectStatements.load.QueryRow(id)
-	err = row.Scan(&s.Id, &s.Type, &s.Name, &s.SortName, &s.Data)
+	row := pg.statements.subject.load.QueryRow(id)
+	err := row.Scan(&s.id, &s.subjectType, &s.name, &s.sortName, &s.data)
 	if err != nil {
-		return
+		return nil, err
 	}
 
-	return
+	return datastore.Subject(s), nil
 }
 
 func (s *Subject) Save() error {
-	if s.IsNew {
+	if s.isNew {
 		return s.insert()
 	} else {
 		return s.update()
@@ -67,25 +72,28 @@ func (s *Subject) Save() error {
 	return nil
 }
 
-func (s Subject) Delete() error {
-	_, err := subjectStatements.delete.Exec(s.Id)
+func (s *Subject) Delete() error {
+	_, err := provider.statements.subject.delete.Exec(s.id)
 	return err
 }
 
 func (s *Subject) insert() error {
-	row := subjectStatements.create.QueryRow(s.Type, s.Name, s.SortName, s.Data)
+	row := provider.statements.subject.create.QueryRow(s.subjectType, s.name, s.sortName, s.data)
 	var id int
 	err := row.Scan(&id)
 	if err != nil {
 		return err
 	}
-	s.Id = id
-	s.IsNew = false
+	s.id = id
+	s.isNew = false
 	return nil
 }
 
 func (s Subject) update() error {
-	_, err := subjectStatements.update.Exec(s.Id, s.Name, s.SortName)
-	s.Data.update(s.Id, subjectStatements.updateData, subjectStatements.deleteData)
+	_, err := provider.statements.subject.update.Exec(s.id, s.name, s.sortName)
+	s.data.update(s.id,
+		provider.statements.subject.updateData,
+		provider.statements.subject.deleteData,
+	)
 	return err
 }
