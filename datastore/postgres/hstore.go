@@ -79,7 +79,7 @@ func (h HStore) Keys() []string {
 }
 
 func (h HStore) update(id int, update *sql.Stmt, delete *sql.Stmt) {
-	tx, _ := db.Begin()
+	tx, _ := provider.db.Begin()
 
 	updateStatement := tx.Stmt(update)
 	deleteStatement := tx.Stmt(delete)

@@ -23,13 +23,13 @@ func (s Subject) Id() int {
 func (s Subject) Name() string {
 	return s.name
 }
-func (s Subject) SetName(name string) {
+func (s *Subject) SetName(name string) {
 	s.name = name
 }
 func (s Subject) SortName() string {
 	return s.sortName
 }
-func (s Subject) SetSortName(sortName string) {
+func (s *Subject) SetSortName(sortName string) {
 	s.sortName = sortName
 }
 func (s Subject) SubjectType() string {

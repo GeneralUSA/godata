@@ -17,8 +17,8 @@ type PostgresProvider struct {
 	}
 }
 
-func NewPostgresProvidier(host, user, password, dbname string) PostgresProvider {
-	return PostgresProvider{
+func NewPostgresProvidier(host, user, password, dbname string) *PostgresProvider {
+	return &PostgresProvider{
 		host:     host,
 		user:     user,
 		password: password,
@@ -27,9 +27,9 @@ func NewPostgresProvidier(host, user, password, dbname string) PostgresProvider 
 }
 
 var db *sql.DB
-var provider PostgresProvider
+var provider *PostgresProvider
 
-func (pg PostgresProvider) Initialize() {
+func (pg *PostgresProvider) Initialize() {
 
 	connectionString := fmt.Sprintf(
 		"host=%v user=%v password=%v dbname=%v",
