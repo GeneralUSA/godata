@@ -11,17 +11,21 @@ type Subject interface {
 	SortName() string
 	SetSortName(string)
 
-	Type() string
+	SubjectType() string
+
+	// Data(DataPointType) DataPoint
+	// SetData(DataPoint)
+	// AllData([]DataPoint)
 
 	Save() error
 }
 
 func LoadSubject(id int) (sub Subject, err error) {
-	s, err := datastore.LoadSubject(id)
+	s, err := datastore.Provider.LoadSubject(id)
 	if err != nil {
 		return nil, err
 	}
-	creator := Registry.SubjectLoader(s.Type)
+	creator := Registry.SubjectLoader(s.SubjectType())
 	return creator(s), nil
 }
 
@@ -30,5 +34,5 @@ func CreateSubject(t string) (Subject, error) {
 	return creator(t), nil
 }
 
-type SubjectLoader func(*datastore.Subject) Subject
+type SubjectLoader func(datastore.Subject) Subject
 type SubjectCreator func(string) Subject
