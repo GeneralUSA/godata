@@ -2,7 +2,7 @@ package datastore
 
 type Subject interface {
 	// Fields set by the datastore
-	Id() int
+	Ider
 
 	// Immutable Fields
 	SubjectType() string
@@ -14,6 +14,6 @@ type Subject interface {
 	SetSortName(sortName string)
 
 	// Operations
-	Save() error
-	Delete() error
+	Saver
+	Deleter
 }
