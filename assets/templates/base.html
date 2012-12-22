@@ -1,0 +1,29 @@
+<!DOCTYPE html>
+<html>
+  <head>
+    <title>{{if .Title }}{{ .Title }}{{ else }}Go Data{{end}}</title>
+    <link href="/static/css/bootstrap.min.css" type='text/css' rel="stylesheet">
+  </head>
+  <body>
+    <div class="container">
+      <div class="row">
+        {{ if .Title }}
+          <div class="span12 page-header">
+            {{ .Title }}
+          </div>
+      </div>      {{ end }}
+      {{ if .Flashes }}
+        <div id="flashes" class='row'>
+          {{ range .Flashes }}
+            <div class="alert {{ .Classes }}">
+              {{ .Message }}
+            </div>
+          {{ end}}
+        </div>
+      {{ end }}
+      {{ template "body" .Body }}
+    </div>
+  </body>
+  <script src="/static/js/jquery.min.js"></script>
+  <script src="/static/js/bootstrap.min.js"></script>
+<html>
