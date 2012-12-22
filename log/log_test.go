@@ -10,10 +10,9 @@ func TestLog(t *testing.T) {
 	output := new(bytes.Buffer)
 	logger := log.New(output, "", 0)
 	testAspect := New("test")
-	testAspect.AddLogger(INFO, logger)
-	testAspect.Debug("Debug message")
-	testAspect.Info("Info message")
-	testAspect.Critical("Critical Message")
+	testAspect.Debug("%v", "Debug message")
+	testAspect.Info("%v", "Info message")
+	testAspect.Critical("%v", "Critical Message")
 
 	expected := `Info message
 Critical Message

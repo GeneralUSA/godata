@@ -130,41 +130,41 @@ func (aspect LogAspect) AddLogger(baseLevel logLevel, logger *log.Logger) {
 
 // Log writes a message to all loggers attached to a log aspect, as well as any
 // loggers attached to the global log destination, using a given log level.
-func (aspect LogAspect) Log(level logLevel, message interface{}) {
+func (aspect LogAspect) Log(level logLevel, format string, items ...interface{}) {
 	for _, logger := range aspect.loggers[level] {
-		logger.Println(message)
+		logger.Printf(format, items...)
 	}
 	for _, logger := range all.loggers[level] {
-		logger.Println(message)
+		logger.Printf(format, items...)
 	}
 }
 
 // Debug writes a message to all attached log destinations, using the DEBUG
 // log level
-func (aspect LogAspect) Debug(message interface{}) {
-	aspect.Log(DEBUG, message)
+func (aspect LogAspect) Debug(format string, items ...interface{}) {
+	aspect.Log(DEBUG, format, items...)
 }
 
 // Info writes a message to all attached log destinations, using the INFO
 // log level
-func (aspect LogAspect) Info(message interface{}) {
-	aspect.Log(INFO, message)
+func (aspect LogAspect) Info(format string, items ...interface{}) {
+	aspect.Log(INFO, format, items...)
 }
 
 // Warning writes a message to all attached log destinations, using the WARNING
 // log level
-func (aspect LogAspect) Warning(message interface{}) {
-	aspect.Log(WARNING, message)
+func (aspect LogAspect) Warning(format string, items ...interface{}) {
+	aspect.Log(WARNING, format, items...)
 }
 
 // Error writes a message to all attached log destinations, using the ERROR
 // log level
-func (aspect LogAspect) Error(message interface{}) {
-	aspect.Log(ERROR, message)
+func (aspect LogAspect) Error(format string, items ...interface{}) {
+	aspect.Log(ERROR, format, items...)
 }
 
 // Critical writes a message to all attached log destinations, using the CRITICAL
 // log level
-func (aspect LogAspect) Critical(message interface{}) {
-	aspect.Log(CRITICAL, message)
+func (aspect LogAspect) Critical(format string, items ...interface{}) {
+	aspect.Log(CRITICAL, format, items...)
 }
