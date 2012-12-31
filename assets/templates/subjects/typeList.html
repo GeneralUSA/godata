@@ -1,0 +1,18 @@
+{{ define "body" }}
+<table class="table table-striped">
+  <thead>
+    <tr>
+      <th>Id</th>
+      <th>Name</th>
+    </tr>
+  </th>
+  <tbody>
+    {{ range . }}
+      <tr>
+        <td>{{ .Id }}</td>
+        <td>{{ .Name }}</td>
+      </tr>
+    {{ end }}
+  </tbody>
+</table>
+{{ end }}

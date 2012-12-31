@@ -10,7 +10,7 @@ import (
 type contextKey int
 
 const (
-	userKey contextKey = iota
+	userKey = "user"
 )
 
 // User represents a web user.

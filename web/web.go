@@ -21,9 +21,21 @@ type Handler interface {
 	ServeHTTP(w http.ResponseWriter, r *http.Request) error
 }
 
+type RequestInitializer func(*http.Request) error
+
+var initializers = make([]RequestInitializer, 0, 0)
+
+func AddRequestInitializer(initializer RequestInitializer) {
+	initializers = append(initializers, initializer)
+}
+
 func (h Handle) ServeHTTP(w http.ResponseWriter, r *http.Request) {
 
-	requestLog.Info("%v %v %v", &r, r.Method, r.RequestURI)
+	requestLog.Info("%v %v", r.Method, r.RequestURI)
+
+	for _, initializer := range initializers {
+		initializer(r)
+	}
 
 	buffer := new(httpbuf.Buffer)
 
@@ -38,7 +50,6 @@ func (h Handle) ServeHTTP(w http.ResponseWriter, r *http.Request) {
 	}
 
 	err = Session(r).Save(r, buffer)
-	fmt.Println(err)
 	context.Clear(r)
 
 	buffer.Apply(w)

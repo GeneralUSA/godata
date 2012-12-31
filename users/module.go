@@ -2,7 +2,9 @@ package users
 
 import (
 	"database/sql"
+	"github.com/YouthBuild-USA/godata/web"
 	"github.com/gorilla/sessions"
+	"net/http"
 )
 
 type userModule struct {
@@ -39,4 +41,12 @@ func (module userModule) SetConnection(conn *sql.DB) {
 
 func (module userModule) SetSessionStore(store sessions.Store) {
 	sessionStore = store
+}
+
+func init() {
+	//TODO maybe this should be a module function?
+	web.AddRequestInitializer(func(r *http.Request) error {
+		_, err := CurrentUser(r)
+		return err
+	})
 }

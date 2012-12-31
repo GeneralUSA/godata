@@ -4,9 +4,13 @@ import (
 	"database/sql"
 	"errors"
 	"fmt"
+	"github.com/YouthBuild-USA/godata/config"
 	"github.com/YouthBuild-USA/godata/log"
+	"github.com/YouthBuild-USA/godata/subjects"
+	"github.com/YouthBuild-USA/godata/templates"
 	"github.com/YouthBuild-USA/godata/users"
 	"github.com/YouthBuild-USA/godata/web"
+	_ "github.com/bmizerany/pq"
 	"github.com/gorilla/mux"
 	"net/http"
 )
@@ -20,23 +24,28 @@ var ModuleLog *log.LogAspect
 
 func init() {
 	ModuleLog = log.New("Module")
-
 	Register(users.Module)
+	Register(subjects.Module)
+
+	config.Register("DEFAULT", "port", "8080", "The port on which to run the webserver")
+	config.Register("DEFAULT", "assetDirectory", "assets", `
+		The directory to find static assets and templates. Can be an absolute path or
+		relative to the executable.
+		`)
+
+	config.Register("Database", "username", "", "The database username")
+	config.Register("Database", "password", "", "The database password")
+	config.Register("Database", "database", "", "The name of the database to use")
+	config.Register("Database", "host", "localhost", "The database host")
 }
 
 var modules map[string]Module = make(map[string]Module)
-
-// SetDatabase sets the database connection to use for the system
-func SetDatabase(connection *sql.DB) {
-	db = connection
-}
 
 // Register registers a module with the system
 func Register(module Module) error {
 	if _, ok := modules[module.Name()]; ok {
 		return ModuleExistsError(module.Name())
 	}
-
 	modules[module.Name()] = module
 	return nil
 }
@@ -44,7 +53,16 @@ func Register(module Module) error {
 // Start starts the system.  If the second error parameter is not nil, then the
 // system failed to start.  Future system halting errors are captured and
 // returned on the channel.
-func Start() (chan error, error) {
+func Start(configFile string) (chan error, error) {
+	config.SetFile(configFile)
+
+	dbUser := config.MustGet("Database", "username")
+	dbPass := config.MustGet("Database", "password")
+	dbName := config.MustGet("Database", "database")
+	dbHost := config.MustGet("Database", "host")
+
+	db, _ = sql.Open("postgres", fmt.Sprintf("user=%v password=%v dbname=%v host=%v", dbUser, dbPass, dbName, dbHost))
+
 	criticalErrors := make(chan error)
 
 	web.CreateSessionStore(SessionKey)
@@ -54,6 +72,8 @@ func Start() (chan error, error) {
 	}
 
 	router := mux.NewRouter()
+
+	templates.Router = router
 
 	adder := func(path string, handle web.Handle) *mux.Route {
 		ModuleLog.Info("Registered Path %v", path)
@@ -74,7 +94,9 @@ func Start() (chan error, error) {
 
 	http.Handle("/static/", http.FileServer(http.Dir(AssetDirectory)))
 	http.Handle("/", router)
-	http.ListenAndServe(":8080", nil)
+	port, _ := config.Get("DEFAULT", "port")
+	fmt.Println(port)
+	http.ListenAndServe(":"+port, nil)
 
 	return criticalErrors, nil
 }
