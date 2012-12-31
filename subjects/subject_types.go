@@ -22,11 +22,7 @@ func subjectTypeIndex(w http.ResponseWriter, r *http.Request) error {
 		return err
 	}
 
-	p := templates.Page{}
-	p.Title = "Subect Types"
-	p.Body = types
-
-	subjecTypeIndexTemplate.Render(w, r, p)
+	subjecTypeIndexTemplate.Render(w, r, "Subject Types", types)
 	return nil
 }
 

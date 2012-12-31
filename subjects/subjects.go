@@ -39,13 +39,12 @@ func rootSubject(w http.ResponseWriter, r *http.Request) error {
 		return web.WebError{nil, "Not found", http.StatusNotFound}
 	}
 
-	page := templates.Page{}
-	page.Title = rootSubject.Name
-	page.Body = rootSubject
+	return rootSubjectTemplate.Render(w, r, rootSubject.Name, rootSubject)
 
-	rootSubjectTemplate.Render(w, r, page)
+}
 
-	return nil
+func (s Subject) String() string {
+	return s.Name
 }
 
 func subjectPage(w http.ResponseWriter, r *http.Request) error {
@@ -67,11 +66,7 @@ func subjectPage(w http.ResponseWriter, r *http.Request) error {
 		return web.WebError{nil, "subject not for site", http.StatusNotFound}
 	}
 
-	page := templates.Page{}
-	page.Title = subject.Name
-	page.Body = subject
-
-	return subjectTemplate.Render(w, r, page)
+	return subjectTemplate.Render(w, r, subject.Name, subject)
 }
 
 func LoadRootSlug(slug string) (*Subject, error) {
@@ -86,4 +81,22 @@ func Load(id int) (*Subject, error) {
 	var subject Subject
 	err := row.Scan(&subject.Id, &subject.SubjectTypeId, &subject.Name, &subject.SortName, &subject.Root)
 	return &subject, err
+}
+
+func (subject Subject) GetChildSubjects() ([]*Subject, error) {
+	subjects := make([]*Subject, 0)
+	rows, err := db.Query("SELECT id, subject_type_id, name, sort_name, root_subject_id FROM subject WHERE root_subject_id = $1", subject.Id)
+	if err != nil {
+		return nil, err
+	}
+
+	for rows.Next() {
+		s := new(Subject)
+		err = rows.Scan(&s.Id, &s.SubjectTypeId, &s.Name, &s.SortName, &s.Root)
+		if err != nil {
+			return nil, err
+		}
+		subjects = append(subjects, s)
+	}
+	return subjects, nil
 }

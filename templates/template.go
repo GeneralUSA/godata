@@ -4,6 +4,7 @@ package templates
 
 import (
 	"fmt"
+	"github.com/YouthBuild-USA/godata/config"
 	"github.com/YouthBuild-USA/godata/web"
 	"github.com/gorilla/context"
 	"github.com/gorilla/mux"
@@ -13,11 +14,34 @@ import (
 	"net/url"
 )
 
-type Page struct {
+func init() {
+	config.Register("branding", "siteName", "Go Data", "The name of the system")
+}
+
+type meta struct {
+	SiteName string
+}
+
+type page struct {
+	Meta    meta
 	Title   string
-	Body    interface{}
+	Data    interface{}
 	User    interface{}
 	Flashes []interface{}
+}
+
+func newPage(r *http.Request, title string, data interface{}) *page {
+	p := &page{
+		Title:   title,
+		Data:    data,
+		Flashes: web.Flashes(r),
+		User:    context.Get(r, "user"),
+		Meta: meta{
+			SiteName: config.MustGet("branding", "siteName"),
+		},
+	}
+
+	return p
 }
 
 var Router *mux.Router
@@ -56,9 +80,8 @@ func TwoColumn() *Layout {
 	}
 }
 
-func (l Layout) Render(w io.Writer, r *http.Request, page Page) error {
-	page.Flashes = web.Flashes(r)
-	page.User = context.Get(r, "user")
+func (l Layout) Render(w io.Writer, r *http.Request, title string, data interface{}) error {
+	page := newPage(r, title, data)
 	return l.t.Execute(w, page)
 }
 

@@ -33,8 +33,7 @@ func loginForm(w http.ResponseWriter, r *http.Request) error {
 		http.Redirect(w, r, "/user", http.StatusFound)
 		return nil
 	}
-	s := templates.Page{}
-	loginFormTemplate.Render(w, r, s)
+	loginFormTemplate.Render(w, r, "", nil)
 
 	return nil
 }
@@ -77,8 +76,7 @@ func userPage(w http.ResponseWriter, r *http.Request) error {
 		return nil
 	}
 	user, _ := CurrentUser(r)
-	data := templates.Page{Title: "User Info", Body: user}
-	return userTemplate.Render(w, r, data)
+	return userTemplate.Render(w, r, "User Info", user)
 }
 
 func logout(w http.ResponseWriter, r *http.Request) error {

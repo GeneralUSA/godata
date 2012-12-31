@@ -48,7 +48,6 @@ func WriteDefaultFile(fileName string) error {
 	defer file.Close()
 
 	file.WriteString("# This is the config file for the data system, values below should be s\n\n")
-	file.WriteString("[DEFAULT]\n")
 	if _, ok := defaults["DEFAULT"]; ok {
 		writeSection(file, "DEFAULT")
 	}
@@ -62,6 +61,7 @@ func WriteDefaultFile(fileName string) error {
 	return nil
 }
 
+// Helper function to write a section's defaults
 func writeSection(file *os.File, section string) {
 	file.WriteString(fmt.Sprintf("[%v]\n", section))
 	for name, value := range defaults[section] {

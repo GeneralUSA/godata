@@ -1,4 +1,18 @@
 {{ define "content" }}
+  <table class="table table-striped">
+    <thead>
+      <tr>
+        <th>Subjects</th>
+      </tr>
+    </thead>
+    <tbody>
+      {{ range .Data.GetChildSubjects }}
+        <tr>
+          <td>{{ .Name }}</td>
+        </tr>
+      {{ end }}
+    </tbody>
+  </table>
 {{ end }}
 
 {{ define "sidebar" }}
