@@ -1,4 +1,4 @@
-// Package template provides layouts for the data system
+// Package template provides layouts for the data systemype
 
 package templates
 
@@ -15,7 +15,7 @@ import (
 )
 
 func init() {
-	config.Register("branding", "siteName", "Go Data", "The name of the system")
+	config.Register("Branding", "siteName", "Go Data", "The name of the system")
 }
 
 type meta struct {
@@ -37,7 +37,7 @@ func newPage(r *http.Request, title string, data interface{}) *page {
 		Flashes: web.Flashes(r),
 		User:    context.Get(r, "user"),
 		Meta: meta{
-			SiteName: config.MustGet("branding", "siteName"),
+			SiteName: config.MustGet("Branding", "siteName"),
 		},
 	}
 
@@ -46,6 +46,7 @@ func newPage(r *http.Request, title string, data interface{}) *page {
 
 var Router *mux.Router
 
+// TODO(andrew) get this from config
 var AssetPath = "assets"
 
 var oneColumnBase = newLayout("base")

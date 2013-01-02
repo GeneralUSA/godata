@@ -2,12 +2,18 @@ package subjects
 
 import (
 	"database/sql"
+	"fmt"
+	"github.com/YouthBuild-USA/godata/config"
 	"github.com/YouthBuild-USA/godata/templates"
 	"github.com/YouthBuild-USA/godata/web"
 	"github.com/gorilla/mux"
 	"net/http"
 	"strconv"
 )
+
+func init() {
+	config.Register("Branding", "rootSubjectURIPrefix", "s", "The Prefix in the URI for root subjects.")
+}
 
 var rootSubjectTemplate = templates.TwoColumn().Add("subjects/rootSubject")
 var subjectTemplate = templates.TwoColumn().Add("subjects/subject")
@@ -22,8 +28,9 @@ type Subject struct {
 }
 
 func subjectRoutes(handleAdder web.HandlerAdder) error {
-	handleAdder("/s/{root:[a-z0-9-]*}", rootSubject).Methods("GET").Name("rootSubject")
-	handleAdder("/s/{root:[a-z0-9-]*}/{subjectType}/{subjectId:[0-9]+}", subjectPage).Methods("GET").Name("subject")
+	rootURI := config.MustGet("Branding", "rootSubjectURIPrefix")
+	handleAdder(fmt.Sprintf("/%s/{root:[a-z0-9-]*}", rootURI), rootSubject).Methods("GET").Name("rootSubject")
+	handleAdder(fmt.Sprintf("/%s/{root:[a-z0-9-]*}/{subjectType}/{subjectId:[0-9]+}", rootURI), subjectPage).Methods("GET").Name("subject")
 	return nil
 }
 
@@ -34,7 +41,7 @@ func rootSubject(w http.ResponseWriter, r *http.Request) error {
 	if err != nil {
 		return web.WebError{err, err.Error(), http.StatusNotFound}
 	}
-
+	//
 	if rootSubject.Root.Valid {
 		return web.WebError{nil, "Not found", http.StatusNotFound}
 	}

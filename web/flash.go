@@ -2,7 +2,6 @@ package web
 
 import (
 	"encoding/gob"
-	"fmt"
 	"net/http"
 )
 
@@ -39,7 +38,6 @@ func init() {
 func flash(r *http.Request, level flashLevel, message string) {
 	session := Session(r)
 	session.AddFlash(FlashMessage{level, message})
-	fmt.Println(session.Values)
 }
 
 func FlashInfo(r *http.Request, message string) {

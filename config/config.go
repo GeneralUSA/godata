@@ -33,7 +33,6 @@ func SetFile(fileName string) {
 			panic(err)
 		}
 	}
-	fmt.Println(c.Options("Database"))
 }
 
 // WriteDefaultFile writes the registerd defaults, as comments, to the given file.
