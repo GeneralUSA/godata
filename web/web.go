@@ -1,12 +1,15 @@
 package web
 
 import (
+	"crypto/rand"
+	"encoding/hex"
 	"fmt"
 	"github.com/YouthBuild-USA/godata/log"
 	"github.com/goods/httpbuf"
 	"github.com/gorilla/context"
 	"github.com/gorilla/mux"
 	"github.com/gorilla/sessions"
+	"io"
 	"net/http"
 )
 
@@ -75,4 +78,31 @@ func CreateSessionStore(key string) {
 func Session(r *http.Request) *sessions.Session {
 	session, _ := store.Get(r, "session-name")
 	return session
+}
+
+const csrfLength = 20
+
+func GenerateCSRF(r *http.Request) string {
+	b := make([]byte, csrfLength)
+	io.ReadFull(rand.Reader, b)
+	token := hex.EncodeToString(b)
+	session := Session(r)
+	session.Values["csrf"] = token
+	return token
+}
+
+func CSRF(r *http.Request) string {
+	session := Session(r)
+	if token, ok := session.Values["csrf"].(string); ok {
+		return token
+	}
+	return GenerateCSRF(r)
+}
+
+func ValidateCSRF(r *http.Request, token string) bool {
+	session := Session(r)
+	if last, ok := session.Values["csrf"].(string); ok {
+		return last == token
+	}
+	return false
 }

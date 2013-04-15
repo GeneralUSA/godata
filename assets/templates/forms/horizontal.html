@@ -1,0 +1,77 @@
+{{ define "formText" }}
+  <div class="control-group {{ if .Error}}error{{ end }}">
+    {{ template "formLabel" . }}
+    <div class="controls">
+      <input type="text" {{ template "formFieldId" . }} name='{{ .Name }}.Value' {{if .Value}}value="{{ .Value }}"{{ end }}>
+      {{ template "formHelp" . }}
+    </div>
+  </div>
+{{ end }}
+
+{{ define "formTextareaBlock" }}
+  <div class="control-group {{ if .Error}}error{{ end }}">
+    {{ template "formLabel" . }}
+    <div class="controls">
+      <textarea name="{{ .Name }}.Value" {{ template "formFieldId" .}} rows="{{ .Rows }}" class="input-block-level">{{ .Value }}</textarea>
+      {{ template "formHelp" . }}
+    </div>
+  </div>
+{{ end }}
+
+{{ define "formSingleCheckbox" }}
+  <div class="control-group">
+    <div class="controls">
+      <label class="checkbox">
+        <input type="checkbox" name="{{ .Name }}.Checked" {{ template "formFieldId" .}} {{ if .Checked }}checked{{ end }}>
+        {{ .Label }}
+      </label>
+    </div>
+  </div>
+{{ end }}
+
+{{ define "formRadios" }}
+  <div class="control-group {{ if .Error }}error{{ end }}">
+    {{ template "formLabel" . }}
+    <div class="controls">
+      {{ range .Options }}
+        <label class="radio">
+          <input type="radio" name="{{ $.Name }}.Value" id="{{ $.Name }}-{{ .Key }}" value="{{ .Key }}" {{ if .Checked }}checked="checked"{{ end }} />
+          {{ .Label }}
+        </label>
+      {{ end }}
+      {{ template "formHelp" .}}
+    </div>
+  </div>
+{{ end }}
+
+{{ define "formCheckboxes" }}
+  <div class="control-group">
+    {{ template "formLabel" . }}
+    <div class="controls">
+      {{ range $i, $k := .Options }}
+        <label class="checkbox">
+          <input type='hidden' name="{{ $.Name }}.Options.{{ $i }}.Key" value="{{ .Key }}" />
+          <input type='checkbox' name="{{ $.Name }}.Options.{{ $i }}.Checked" {{ if .Set }}checked="checked"{{ end }}/>
+          {{ .Label }}
+        </label>
+      {{ end }}
+    </div>
+  </div>
+{{ end }}
+
+{{ define "formLabel" }}
+  {{ if .Label }}
+    <label for="{{ .Id }}" class="control-label">{{ .Label }}</label>
+  {{ end}}
+{{ end }}
+
+{{ define "formHelp" }}
+  {{ if .Help }}
+    <span class="help-block">{{ .Help }}</span>
+  {{ end }}
+  {{ if .Error }}
+    <span class="help-block">{{ .Error }}</span>
+  {{ end }}
+{{ end  }}
+
+{{ define "formFieldId" }}{{ if .Id }}id="{{ .Id }}"{{ end }}{{ end }}

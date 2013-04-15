@@ -7,10 +7,6 @@ import (
 
 type Module interface {
 	Name() string
-	Version() int
-	Install() error
-	Uninstall() error
-	Upgrade(from, to int) error
 }
 
 type DatabaseModule interface {

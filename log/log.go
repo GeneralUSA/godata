@@ -168,3 +168,20 @@ func (aspect LogAspect) Error(format string, items ...interface{}) {
 func (aspect LogAspect) Critical(format string, items ...interface{}) {
 	aspect.Log(CRITICAL, format, items...)
 }
+
+func (aspect LogAspect) Writer(level logLevel) io.Writer {
+	return &aspectWriter{
+		aspect: &aspect,
+		level:  level,
+	}
+}
+
+type aspectWriter struct {
+	aspect *LogAspect
+	level  logLevel
+}
+
+func (w aspectWriter) Write(p []byte) (int, error) {
+	w.aspect.Log(w.level, string(p))
+	return len(p), nil
+}

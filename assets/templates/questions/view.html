@@ -1,0 +1,18 @@
+{{ define "body" }}
+  {{ with .Data }}
+    <dl>
+      <dt>Name</td>
+      <dd>{{ .Name }}</dd>
+      <dt>Description</dt>
+      <dd>{{ .Description }}</dd>
+      <dt>Text</dt>
+      <dd>{{ .Text }}</td>
+      {{ if .Help }}
+        <dt>Help Text</dt>
+        <dd>{{ .Help }}</dd>
+      {{ end }}
+    </dl>
+
+    <a href="/admin/questions/{{ .Id }}/edit" class="btn"><i class="icon icon-pencil"></i> Edit</a>
+  {{ end }}
+{{ end }}

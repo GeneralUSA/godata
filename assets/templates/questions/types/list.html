@@ -1,0 +1,24 @@
+{{ define "body" }}
+  <table class='table table-striped'>
+    <thead>
+      <tr>
+        <th>Type</th>
+        <th>Description</th>
+        <th>Actions</th>
+      </tr>
+    </th>
+    <tbody>
+      {{ range .Data }}
+        <tr>
+          <td>{{ .Label }}</td>
+          <td>{{ .Description }}</td>
+          <td>
+            <div class="btn-group">
+              <a class="btn btn-mini" title='Add {{ .Label }} question' href="/admin/questions/add/{{ .Name }}"><i class="icon icon-plus"></i></a>
+              <a class="btn btn-mini" title='List existing {{ .Label }} questions' href="/admin/questions/types/{{ .Name }}"><i class="icon icon-list"></i></a>
+            </div>
+          </td>
+        </tr>
+      {{ end }}
+  </table>
+{{ end }}

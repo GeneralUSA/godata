@@ -1,0 +1,31 @@
+{{ define "body" }}
+  <div class="btn-group">
+    <a class="btn" href='/admin/questions/types'><i class="icon icon-plus"></i> Add New Question</a>
+  </div>
+  <table class='table table-striped'>
+    <thead>
+      <tr>
+        <th>Id</th>
+        <th>Name</th>
+        <th>Type</th>
+        <th>Description</th>
+        <th>Actions</th>
+      </tr>
+    </thead>
+    <tbody>
+      {{ range .Data }}
+        <tr {{ if not .Enabled }}class='warning'{{ end }}>
+          <td>{{ .Id }}</td>
+          <td>{{ .Name }}</td>
+          <td>{{ .QuestionType.Label }}</td>
+          <td>{{ .Description }}</td>
+          <td>
+            <div class="btn-group">
+              <a class="btn btn-mini" title='Edit {{ .Name }}' href="/admin/questions/{{ .Id }}/edit"><i class="icon icon-pencil"></i></a>
+            </div>
+          </td>
+        </tr>
+      {{ end }}
+    </tbody>
+  </table>
+{{ end }}

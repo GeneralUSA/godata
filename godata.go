@@ -5,27 +5,33 @@ import (
 	"errors"
 	"fmt"
 	"github.com/YouthBuild-USA/godata/config"
+	"github.com/YouthBuild-USA/godata/global"
 	"github.com/YouthBuild-USA/godata/log"
+	"github.com/YouthBuild-USA/godata/questions"
 	"github.com/YouthBuild-USA/godata/subjects"
 	"github.com/YouthBuild-USA/godata/templates"
 	"github.com/YouthBuild-USA/godata/users"
 	"github.com/YouthBuild-USA/godata/web"
 	_ "github.com/bmizerany/pq"
+	"github.com/coopernurse/gorp"
 	"github.com/gorilla/mux"
+	golog "log"
 	"net/http"
 )
 
 var db *sql.DB = nil
+var dbMap *gorp.DbMap
 
 var AssetDirectory string = "assets"
 var SessionKey string = "this should be changed!"
 
 var ModuleLog *log.LogAspect
+var DBLog *log.LogAspect
 
 func init() {
 	ModuleLog = log.New("Module")
+	DBLog = log.New("Database")
 	Register(users.Module)
-	Register(subjects.Module)
 
 	config.Register("DEFAULT", "port", "8080", "The port on which to run the webserver")
 	config.Register("DEFAULT", "assetDirectory", "assets", `
@@ -62,6 +68,13 @@ func Start(configFile string) (chan error, error) {
 	dbHost := config.MustGet("Database", "host")
 
 	db, _ = sql.Open("postgres", fmt.Sprintf("user=%v password=%v dbname=%v host=%v", dbUser, dbPass, dbName, dbHost))
+	dbMap = &gorp.DbMap{Db: db, Dialect: gorp.PostgresDialect{}}
+
+	global.DB = db
+	global.DbMap = dbMap
+
+	dbLogger := golog.New(DBLog.Writer(log.INFO), "", 0)
+	dbMap.TraceOn("GORP", dbLogger)
 
 	criticalErrors := make(chan error)
 
@@ -92,10 +105,15 @@ func Start(configFile string) (chan error, error) {
 		}
 	}
 
+	questions.InitializeDatabase(db, dbMap)
+	subjects.Initialize(dbMap)
+
+	questions.AddRoutes(adder)
+	subjects.AddRoutes(adder)
+
 	http.Handle("/static/", http.FileServer(http.Dir(AssetDirectory)))
 	http.Handle("/", router)
 	port, _ := config.Get("DEFAULT", "port")
-	fmt.Println(port)
 	http.ListenAndServe(":"+port, nil)
 
 	return criticalErrors, nil

@@ -20,6 +20,7 @@ func init() {
 
 type meta struct {
 	SiteName string
+	CSRF     string
 }
 
 type page struct {
@@ -38,6 +39,7 @@ func newPage(r *http.Request, title string, data interface{}) *page {
 		User:    context.Get(r, "user"),
 		Meta: meta{
 			SiteName: config.MustGet("Branding", "siteName"),
+			CSRF:     web.CSRF(r),
 		},
 	}
 
@@ -61,11 +63,20 @@ func newLayout(baseTemplates ...string) *template.Template {
 	for i := range baseTemplates {
 		files[i] = fmt.Sprintf("%v/templates/%v.html", AssetPath, baseTemplates[i])
 	}
+
 	funcMap := template.FuncMap{
-		"url": routerUrl,
+		"render": render,
 	}
-	t := template.Must(template.ParseFiles(files...))
-	t.Funcs(funcMap)
+
+	t := template.New(baseTemplates[0] + ".html").Funcs(funcMap)
+	var err error
+	if len(files) > 0 {
+		t, err = t.ParseFiles(files...)
+		fmt.Println("Parsed", files)
+		if err != nil {
+			panic(err)
+		}
+	}
 	return t
 }
 
@@ -97,4 +108,15 @@ func (l *Layout) Add(templates ...string) *Layout {
 
 func routerUrl(name string, params ...string) (*url.URL, error) {
 	return Router.Get(name).URLPath(params...)
+}
+
+func render(item interface{}, context interface{}) interface{} {
+	if renderable, ok := item.(Renderable); ok {
+		return renderable.Render(context)
+	}
+	return "could not render"
+}
+
+type Renderable interface {
+	Render(context interface{}) interface{}
 }

@@ -1,0 +1,32 @@
+{{ define "body" }}
+  <form class = 'form-horizontal' method="POST" action="{{ .Data.Action }}">
+    <input type='hidden' name="csrf_token" value="{{ .Meta.CSRF }}" />
+
+    <fieldset>
+      <legend>Basic Information</legend>
+
+      {{ with .Data.Form }}
+        {{ template "formText" .Name }}
+        {{ template "formTextareaBlock" .Description }}
+        {{ template "formTextareaBlock" .Text }}
+        {{ template "formTextareaBlock" .Help }}
+        {{ template "formSingleCheckbox" .Enabled }}
+      {{ end }}
+
+    </fieldset>
+
+    <fieldset>
+      <legend>Subject Types</legend>
+      {{ with .Data.Form }}
+        {{ template "formCheckboxes" .SubjectTypes }}
+      {{ end }}
+    </fieldset>
+
+    <div class="control-group">
+      <div class="controls form-action">
+        <button type='submit' class='btn btn-primary'>Save Question</button>
+        <button type='button' class="btn">Cancel</button>
+      </div>
+    </div>
+  </form>
+{{ end }}

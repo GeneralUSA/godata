@@ -3,4 +3,12 @@
 {{ end }}
 
 {{ define "content" }}
+  <form method="post" action="">
+    {{ range .Data.Questions }}
+      <div id="question_{{ .Id }}" class='row'>
+        {{ render . $ }}
+      </div>
+    {{ end }}
+    <button type="submit" class="btn btn-primary">Save</button>
+  </form>
 {{ end }}
